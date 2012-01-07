@@ -15,7 +15,6 @@ describe HTTParrot::ResponseFactory do
     it "removes all factories when cleared" do
       HTTParrot::ResponseFactory.define(:response) { |r| r.test = "Test" }
       HTTParrot::ResponseFactory.clear!
-      HTTParrot::ResponseFactory.clear!
       HTTParrot::ResponseFactory.instance_variable_get("@factory_classes").size.should eq(0)
     end
 
