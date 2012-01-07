@@ -10,6 +10,17 @@ describe HTTParrot::ResponseFactory do
     specify{ described_class.should respond_to(:collection_of) }
   end
 
+  context "#clear!" do
+
+    it "removes all factories when cleared" do
+      HTTParrot::ResponseFactory.define(:response) { |r| r.test = "Test" }
+      HTTParrot::ResponseFactory.clear!
+      HTTParrot::ResponseFactory.clear!
+      HTTParrot::ResponseFactory.instance_variable_get("@factory_classes").size.should eq(0)
+    end
+
+  end
+
   context "#define" do 
     before(:each) { HTTParrot::ResponseFactory.clear! }
 
@@ -62,6 +73,29 @@ describe HTTParrot::ResponseFactory do
 
     it "raises error if factory does not exist" do 
       expect{ HTTParrot::ResponseFactory.build(:response) }.to raise_error(/factory type/)
+    end
+
+    it "calls the definition block during build" do 
+      HTTParrot::ResponseFactory.define(:response) { |r| raise "block call" }
+      expect{ HTTParrot::ResponseFactory.build(:response) }.to raise_error(/block call/)
+    end
+
+    it "returns a response with values set from definition" do 
+      HTTParrot::ResponseFactory.define(:response) { |r| r.value = "Test1" }
+      res = HTTParrot::ResponseFactory.build(:response)
+      res.value.should eq("Test1")
+    end
+
+    it "returns a Widget" do 
+      HTTParrot::ResponseFactory.define(:response) { |r| r.value = "Test1" }
+      res = HTTParrot::ResponseFactory.build(:response)
+      res.should be_a(HTTParrot::Widget)
+    end
+
+    it "overrides defaults when changes are provided in build" do 
+      HTTParrot::ResponseFactory.define(:response) { |r| r.value = "Test1" }
+      res = HTTParrot::ResponseFactory.build(:response, :value => "New Val")
+      res.value.should eq("New Val")
     end
 
   end
