@@ -8,17 +8,16 @@ module HTTParrot
 
   class Widget < OpenStruct
 
+    def options
+      return @table
+    end
+
     def parent(parental_class, defaults={})
       case
       when parental_class.is_a?(Symbol) then
         parental_class = HTTParrot::ResponseFactory.build(parental_class, defaults)
-      end
-
+      end 
       self.marshal_load(parental_class.marshal_dump)
-    end
-
-    def options
-      return @table
     end
 
     def rack_response(response_code = 200)
