@@ -41,6 +41,14 @@ describe HTTParrot::ResponseFactory do
 
   end
 
+  context "#one_of" do
+
+    it "requires choices to be provided" do
+      expect{ HTTParrot::ResponseFactory.one_of([]) }.to raise_error
+    end
+
+  end
+
   context "#build" do
     before(:each) { HTTParrot::ResponseFactory.clear! }
 
