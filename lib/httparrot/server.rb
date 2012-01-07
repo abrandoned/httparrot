@@ -26,7 +26,7 @@ module HTTParrot
       @options = { 
         :Port => 4000, 
         :Host => "127.0.0.1" 
-      }.merge(HTTParrot.config).merge(opts)
+      }.merge(HTTParrot::Config.config).merge(opts)
 
       self.clear!
     end
