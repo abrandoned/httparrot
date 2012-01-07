@@ -1,6 +1,5 @@
 require 'date'
 require 'securerandom'
-require File.expand_path('../response_factory', __FILE__)
 
 ResponseFactory.define(:base_ofx) do |ofx|
   # header fields

@@ -6,13 +6,10 @@ require "ostruct"
 require "thread"
 
 class HTTParrot
-  @config_lock = Mutex.new
   @config = OpenStruct.new
 
   def self.configure 
-    @config_lock.synchronize do 
-      yield self
-    end
+    yield self
   end
 
   def self.config
@@ -23,7 +20,7 @@ class HTTParrot
     [ :Port, 
       :SSLPort,
       :ssl,
-      :templates,
+      :template_root,
       :verbose ].include?(key)
   end
 
@@ -45,4 +42,5 @@ HTTParrot.configure do |config|
   config.SSLPort = config.Port + 1
   config.ssl = true
   config.verbose = false
+  config.template_root = nil
 end
