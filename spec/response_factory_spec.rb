@@ -43,8 +43,16 @@ describe HTTParrot::ResponseFactory do
 
   context "#one_of" do
 
-    it "requires choices to be provided" do
-      expect{ HTTParrot::ResponseFactory.one_of([]) }.to raise_error
+    it "warns if choices are not provided" do
+      HTTParrot::ResponseFactory.should_receive(:warn).with(/choices/)
+      HTTParrot::ResponseFactory.one_of([])
+    end
+
+    it "returns a choice" do 
+      choices = [1, 2, 3, 4, 5]
+      choices.should include(HTTParrot::ResponseFactory.one_of(choices))
+      choices = ["choice1", "choice2", "choice3"]
+      choices.should include(HTTParrot::ResponseFactory.one_of(choices))
     end
 
   end

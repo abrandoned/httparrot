@@ -56,7 +56,7 @@ module HTTParrot
     def self.define(factory_class, &block)
       raise error_no_block(factory_class) if block.nil?
       @factory_classes ||= {} 
-      warn_if_factory_exists(factory_class)
+      warn_factory_exists(factory_class) if @factory_classes.keys.include?(factory_class)
       default_object = HTTParrot::Widget.new(:class => "Widget::#{factory_class.to_s.camelize}")
       @factory_classes[factory_class] = lambda{ block.call(default_object); default_object } 
     end
@@ -83,6 +83,7 @@ module HTTParrot
     end
 
     def self.one_of(choices)
+      warn_no_choices if choices.size <= 0
       choices[rand(choices.size)]
     end
 
@@ -96,25 +97,36 @@ module HTTParrot
       "No block included in definition of #{factory_class} factory"
     end
 
-    def self.warn_if_factory_exists(factory_class)
-      if @factory_classes.keys.include?(factory_class)
-        begin
-          raise "foo"
-        rescue => e
-          warn <<-WARNING
-              ==============================================================
-                  #{factory_class} is already defined as a ResponseFactory
+    def self.warn_no_choices
+      raise "foo"
+    rescue => e
+      warn <<-WARNING
+          ==============================================================
+              No choices were provided for #one_of
 
-                      This constitutes a redefinition of the factory
+                  This constitutes a nil choice 
 
-                      Redefined at:
+                  At:
 
-                  #{e.backtrace.join("#{$/}      ")}
-              ==============================================================
-          WARNING
-        end
-      end
+              #{e.backtrace.join("#{$/}      ")}
+          ==============================================================
+      WARNING
+    end
 
+    def self.warn_factory_exists(factory_class)
+      raise "foo"
+    rescue => e
+      warn <<-WARNING
+          ==============================================================
+              #{factory_class} is already defined as a ResponseFactory
+
+                  This constitutes a redefinition of the factory
+
+                  Redefined at:
+
+              #{e.backtrace.join("#{$/}      ")}
+          ==============================================================
+      WARNING
     end
 
   end
