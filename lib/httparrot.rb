@@ -25,7 +25,7 @@ module HTTParrot
         :verbose ].include?(key)
     end
 
-    def self.restore_defaults
+    def self.restore_defaults!
       self.configure do |c|
         c.Port = 4000
         c.SSLPort = c.Port + 1
@@ -49,4 +49,4 @@ module HTTParrot
   end
 end
 
-HTTParrot::Config.restore_defaults
+HTTParrot::Config.restore_defaults!

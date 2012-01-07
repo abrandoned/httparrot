@@ -10,44 +10,39 @@ describe HTTParrot::Config do
     specify{ HTTParrot::Config.verbose.should be_false }
   end
 
-  it "updates :Port" do
-    HTTParrot::Config.Port = 5000
-    HTTParrot::Config.Port.should eq(5000)
-    HTTParrot::Config.config[:Port].should eq(5000)
+  context "updates" do
+    before(:each) { HTTParrot::Config.restore_defaults! }
 
-    HTTParrot::Config.restore_defaults
-  end
+    it ":Port" do
+      HTTParrot::Config.Port = 5000
+      HTTParrot::Config.Port.should eq(5000)
+      HTTParrot::Config.config[:Port].should eq(5000)
+    end
 
-  it "updates :SSLPort" do
-    HTTParrot::Config.SSLPort = 5000
-    HTTParrot::Config.SSLPort.should eq(5000)
-    HTTParrot::Config.config[:SSLPort].should eq(5000)
+    it ":SSLPort" do
+      HTTParrot::Config.SSLPort = 5000
+      HTTParrot::Config.SSLPort.should eq(5000)
+      HTTParrot::Config.config[:SSLPort].should eq(5000)
+    end
 
-    HTTParrot::Config.restore_defaults
-  end
+    it ":ssl" do
+      HTTParrot::Config.ssl = false 
+      HTTParrot::Config.ssl.should be_false 
+      HTTParrot::Config.config[:ssl].should be_false 
+    end
 
-  it "updates :ssl" do
-    HTTParrot::Config.ssl = false 
-    HTTParrot::Config.ssl.should be_false 
-    HTTParrot::Config.config[:ssl].should be_false 
+    it ":verbose" do
+      HTTParrot::Config.verbose = true 
+      HTTParrot::Config.verbose.should be_true
+      HTTParrot::Config.config[:verbose].should be_true
+    end
 
-    HTTParrot::Config.restore_defaults
-  end
+    it ":template_root" do
+      HTTParrot::Config.template_root = "updated value" 
+      HTTParrot::Config.template_root.should eq("updated value") 
+      HTTParrot::Config.config[:template_root].should eq("updated value") 
+    end
 
-  it "updates :verbose" do
-    HTTParrot::Config.verbose = true 
-    HTTParrot::Config.verbose.should be_true
-    HTTParrot::Config.config[:verbose].should be_true
-
-    HTTParrot::Config.restore_defaults
-  end
-
-  it "updates :template_root" do
-    HTTParrot::Config.template_root = "updated value" 
-    HTTParrot::Config.template_root.should eq("updated value") 
-    HTTParrot::Config.config[:template_root].should eq("updated value") 
-
-    HTTParrot::Config.restore_defaults
   end
 
 end

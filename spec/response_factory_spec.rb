@@ -42,6 +42,11 @@ describe HTTParrot::ResponseFactory do
   end
 
   context "#build" do
+    before(:each) { HTTParrot::ResponseFactory.clear! }
+
+    it "raises error if factory does not exist" do 
+      expect{ HTTParrot::ResponseFactory.build(:response) }.to raise_error(/factory type/)
+    end
 
   end
   
