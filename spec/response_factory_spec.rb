@@ -21,6 +21,39 @@ describe HTTParrot::ResponseFactory do
 
   end
 
+  context "#collection_of" do
+    before(:each) { HTTParrot::ResponseFactory.clear! }
+
+    it "requires the factory_class to exist" do 
+      expect{ HTTParrot::ResponseFactory.collection_of(:response, 10) }.to raise_error(/factory/)
+    end
+
+    it "returns the specified number of Widgets" do 
+      HTTParrot::ResponseFactory.define(:response) { |t| t.value = "Test" }
+      c = HTTParrot::ResponseFactory.collection_of(:response, 10)
+      c.size.should eq(10)
+    end
+
+    it "returns Widgets with values from factory definitions" do
+      HTTParrot::ResponseFactory.define(:response) { |t| t.value = "Test" }
+      c = HTTParrot::ResponseFactory.collection_of(:response, 10)
+      c.each do |w|
+        w.should be_a(HTTParrot::Widget)
+        w.value.should eq("Test")
+      end
+    end
+
+    it "returns Widgets with values from factory definitions overridden" do
+      HTTParrot::ResponseFactory.define(:response) { |t| t.value = "Test" }
+      c = HTTParrot::ResponseFactory.collection_of(:response, 10, :value => "Over")
+      c.each do |w|
+        w.should be_a(HTTParrot::Widget)
+        w.value.should eq("Over")
+      end
+    end
+
+  end
+
   context "#define" do 
     before(:each) { HTTParrot::ResponseFactory.clear! }
 
