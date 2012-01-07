@@ -3,7 +3,6 @@ require "httparrot/server"
 require "httparrot/response_factory"
 
 require "ostruct"
-require "thread"
 
 module HTTParrot
   class Config 
