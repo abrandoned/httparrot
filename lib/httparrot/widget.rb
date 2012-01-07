@@ -26,23 +26,45 @@ module HTTParrot
     end
 
     def rack_response(response_code = 200)
-      # should probably set some headers here
       rendered_response = self.to_s
       return [response_code, {"Content-Length" => rendered_response.size.to_s}, [rendered_response]]
     end
     alias_method :to_rack, :rack_response
+    alias_method :to_rack_response, :rack_response
 
     def to_s
-      if @table.has_key?(:template_file)
+      if self.options.has_key?(:template_file)
         file_template = File.dirname(File.expand_path(__FILE__)) 
         file_template = file_template + "/" + template_file
         file_string = File.read(file_template)
 
         current_template = ERB.new(file_string, nil, "<>")
         return current_template.result(binding) 
+      else
+        warn_no_template
+        return self.inspect
       end
+    end
 
-      return self.inspect
+    private
+
+    def warn_no_template
+      raise "foo"
+    rescue => e
+      warn <<-WARNING
+          ==============================================================
+              #{self.class} does not have a template_file associated
+
+              This will leave the response as an inspection of the class
+              and is probably not the intended behavior.  Before returning
+              a rack_response, you should define a template file to render
+              the response with.
+
+              Called at:
+
+              #{e.backtrace.join("#{$/}      ")}
+          ==============================================================
+      WARNING
     end
 
   end
