@@ -17,10 +17,6 @@ module HTTParrot
       self.marshal_load(parental_class.marshal_dump)
     end
 
-    def contains_many(relation_class, build_one = false, options={})
-      self.send("#{relation_class.to_s.pluralize}=", [])
-    end
-
     def options
       return @table
     end
