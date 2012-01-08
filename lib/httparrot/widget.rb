@@ -8,16 +8,26 @@ module HTTParrot
 
   class Widget < OpenStruct
 
-    def options
-      return @table
+    attr_accessor :parent_overwrite
+
+    def initialize(defaults = {})
+      @parent_overwrite = true
+      super(defaults)
     end
 
     def parent(parental_class, defaults={})
       case
       when parental_class.is_a?(Symbol) then
         parental_class = HTTParrot::ResponseFactory.build(parental_class, defaults)
+      when !parental_class.respond_to?(:to_hash) then
+        raise "Parent must be a symbol or respond_to #to_hash"
       end 
-      self.marshal_load(parental_class.marshal_dump)
+
+      merge_parent
+    end
+
+    def parent_overwrite?
+      @parent_overwrite
     end
 
     def rack_response(response_code = 200)
@@ -27,8 +37,12 @@ module HTTParrot
     alias_method :to_rack, :rack_response
     alias_method :to_rack_response, :rack_response
 
+    def to_hash
+      self.marshap_dump
+    end
+
     def to_s
-      if self.options.has_key?(:template_file)
+      if @table.has_key?(:template_file)
         file_template = File.dirname(File.expand_path(__FILE__)) 
         file_template = file_template + "/" + template_file
         file_string = File.read(file_template)
@@ -43,11 +57,20 @@ module HTTParrot
 
     private
 
+    def merge_parent
+      case 
+      when parent_overwrite? then
+        @table.merge!(parental_class.to_hash)
+      else
+        @table.merge!(parental_class.to_hash.merge(@table))
+      end
+    end
+
     def warn_no_template
       raise "foo"
     rescue => e
       warn <<-WARNING
-          ==============================================================
+          ===================================================================
               #{self.class} does not have a template_file associated
 
               This will leave the response as an inspection of the class
@@ -58,7 +81,7 @@ module HTTParrot
               Called at:
 
               #{e.backtrace.join("#{$/}      ")}
-          ==============================================================
+          ===================================================================
       WARNING
     end
 
