@@ -8,10 +8,8 @@ module HTTParrot
 
   class Widget < OpenStruct
 
-    attr_accessor :parent_overwrite
-
     def initialize(defaults = {})
-      @parent_overwrite = true
+      @parent_overwrite = false 
       super(defaults)
     end
 
@@ -26,8 +24,10 @@ module HTTParrot
       merge_parent
     end
 
-    def parent_overwrite?
-      @parent_overwrite
+    def parent!(parental_class, defaults = {})
+      @parent_overwrite = true
+      parent(parental_class, defaults)
+      @parent_overwrite = false
     end
 
     def rack_response(response_code = 200)
@@ -59,7 +59,7 @@ module HTTParrot
 
     def merge_parent
       case 
-      when parent_overwrite? then
+      when @parent_overwrite then
         @table.merge!(parental_class.to_hash)
       else
         @table.merge!(parental_class.to_hash.merge(@table))
@@ -75,8 +75,7 @@ module HTTParrot
 
               This will leave the response as an inspection of the class
               and is probably not the intended behavior.  Before returning
-              a rack_response, you should define a template file to render
-              the response with.
+              a rack_response, define a template file to render with.
 
               Called at:
 
