@@ -12,7 +12,7 @@ module HTTParrot
       raise error_no_block(factory_class) if block.nil?
       @factory_classes ||= {} 
       warn_factory_exists(factory_class) if @factory_classes.keys.include?(factory_class)
-      default_object = HTTParrot::Widget.new(:class => "Widget::#{factory_class.to_s.camelize}")
+      default_object = HTTParrot::Widget.new(:_class => "Widget::#{factory_class.to_s.camelize}")
       @factory_classes[factory_class] = lambda{ block.call(default_object); default_object } 
     end
 

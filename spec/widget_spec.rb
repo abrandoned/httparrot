@@ -11,6 +11,8 @@ describe HTTParrot::Widget do
     specify{ subject.should respond_to(:parent!) }
   end
 
+  specify{ subject.to_hash.should be_a(Hash) }
+
   shared_examples "a parental relationship" do |meth|
 
     it "adds new values" do 
@@ -75,6 +77,24 @@ describe HTTParrot::Widget do
     before(:each) { HTTParrot::ResponseFactory.clear! }
 
     it_behaves_like "a parental relationship", :parent!
+
+    it "overwrites existing values" do
+      current = HTTParrot::Widget.new(:first => 1, :second => 2)
+      current.parent!({:first => 2, :second => 1})
+      current.first.should eq(2)
+      current.second.should eq(1)
+    end
+
+    it "overwrites with last parent call for adding values" do 
+      current = HTTParrot::Widget.new
+      current.parent!(:first => 1)
+      current.parent!(:second => 2)
+      current.parent!(:third => 3)
+      current.parent!(:first => 2, :second => 3, :third => 1)
+      current.first.should eq(2)
+      current.second.should eq(3)
+      current.third.should eq(1)
+    end
 
   end
 

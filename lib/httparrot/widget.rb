@@ -42,11 +42,10 @@ module HTTParrot
     end
 
     def to_s
-      if @table.has_key?(:template_file)
-        file_template = File.dirname(File.expand_path(__FILE__)) 
-        file_template = file_template + "/" + template_file
-        file_string = File.read(file_template)
+      set_template_file
 
+      if @table.has_key?(:template_file)
+        file_string = File.read(file_template)
         current_template = ERB.new(file_string, nil, "<>")
         return current_template.result(binding) 
       else
@@ -63,6 +62,14 @@ module HTTParrot
         @table.merge!(parental_class.to_hash)
       else
         @table.merge!(parental_class.to_hash.merge(@table))
+      end
+    end
+
+    def set_template_file
+      if self.template_file.nil? || self.template_file.empty?
+        template_root = HTTParrot::Config.config[:template_root]
+        filename = "#{self._class.gsub("Widget::", "").underscore}.erb"
+        self.template_file = Dir.glob(template_root + "/**/" + filename).first
       end
     end
 
