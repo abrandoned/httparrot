@@ -21,7 +21,7 @@ module HTTParrot
         raise "Parent must be a symbol or respond_to #to_hash"
       end 
 
-      merge_parent
+      merge_parent(parental_class)
     end
 
     def parent!(parental_class, defaults = {})
@@ -38,7 +38,7 @@ module HTTParrot
     alias_method :to_rack_response, :rack_response
 
     def to_hash
-      self.marshap_dump
+      self.marshal_dump
     end
 
     def to_s
@@ -57,7 +57,7 @@ module HTTParrot
 
     private
 
-    def merge_parent
+    def merge_parent(parental_class)
       case 
       when @parent_overwrite then
         @table.merge!(parental_class.to_hash)
