@@ -44,7 +44,7 @@ module HTTParrot
     def to_s
       set_template_file
 
-      if @table.has_key?(:template_file)
+      if @table.has_key?(:template_file) && !self.template_file.nil?
         file_string = File.read(file_template)
         current_template = ERB.new(file_string, nil, "<>")
         return current_template.result(binding) 
@@ -66,8 +66,11 @@ module HTTParrot
     end
 
     def set_template_file
+      self._class = self._class || self.class.to_s
+
       if self.template_file.nil? || self.template_file.empty?
-        template_root = HTTParrot::Config.config[:template_root]
+        template_root = HTTParrot::Config.config[:template_root] || ".."
+        template_root = template_root[0..-1] if template_root[-1] == "/"
         filename = "#{self._class.gsub("Widget::", "").underscore}.erb"
         self.template_file = Dir.glob(template_root + "/**/" + filename).first
       end
