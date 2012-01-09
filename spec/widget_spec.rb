@@ -106,6 +106,9 @@ describe HTTParrot::Widget do
       HTTParrot::Config.config[:template_root] = File.dirname(__FILE__) + "/templates" 
       current.rack_response.should be_a(Array)
       current.rack_response.size.should eq(3)
+      current.rack_response.first.should be_a(Integer)
+      current.rack_response.last.should respond_to(:each)
+      current.rack_response[1].should be_a(Hash)
     end
 
   end
@@ -127,6 +130,24 @@ describe HTTParrot::Widget do
                                                File.dirname(__FILE__))
 
       current.to_s.should match(/AWESOMEHEADER/i)
+    end
+
+    context "rendering erb with current widget" do
+      before(:each) { HTTParrot::ResponseFactory.clear! }
+
+      it "inserts the value of defined methods into the output" do
+        current = described_class.new
+        current.widget_header = "TEST HEADER"
+        HTTParrot::Config.config[:template_root] = File.dirname(__FILE__) + "/templates" 
+        current.to_s.should match(/TEST HEADER/)
+      end
+
+      it "removes erb tags when value is not present" do 
+        current = described_class.new
+        HTTParrot::Config.config[:template_root] = File.dirname(__FILE__) + "/templates" 
+        current.to_s.should_not match(/widget_header/)
+      end
+
     end
 
     context "falls back to HTTParrot::Config[:template_root] when no template_file" do
