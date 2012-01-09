@@ -108,7 +108,7 @@ describe HTTParrot::Widget do
   end
 
   context "#to_s" do
-    
+
     it "warns if no template_file is defined" do 
       subject.should_receive(:warn).with(/template_file/)
       subject.to_s
@@ -130,20 +130,31 @@ describe HTTParrot::Widget do
       current.to_s.should match(/AWESOMEHEADER/i)
     end
 
-    it "falls back to HTTParrot::Config[:template_root] when no template_file (warn)" do
-      current = described_class.new
-      bad_dir = File.expand_path("../lib/httparrot.rb", File.dirname(__FILE__))
-      HTTParrot::Config.config[:template_root] = File.dirname(bad_dir) 
-      warning = Regexp.escape(current.__send__(:template_root_search))
-      current.should_receive(:warn).with(/#{warning}/)
-      current.to_s
-    end
+    context "falls back to HTTParrot::Config[:template_root] when no template_file" do
 
-    it "falls back to HTTParrot::Config[:template_root] when no template_file (warn)" do
-      current = described_class.new
-      HTTParrot::Config.config[:template_root] = File.dirname(__FILE__) + "/templates" 
-      warning = Regexp.escape(current.__send__(:template_root_search))
-      current.to_s.should match(/WIDGETHEADER/i)
+      it "warn" do
+        current = described_class.new
+        bad_dir = File.expand_path("../lib/httparrot.rb", File.dirname(__FILE__))
+        HTTParrot::Config.config[:template_root] = File.dirname(bad_dir) 
+        warning = Regexp.escape(current.__send__(:template_root_search))
+        current.should_receive(:warn).with(/#{warning}/)
+          current.to_s
+      end
+
+      it "success" do
+        current = described_class.new
+        HTTParrot::Config.config[:template_root] = File.dirname(__FILE__) + "/templates" 
+        warning = Regexp.escape(current.__send__(:template_root_search))
+        current.to_s.should match(/WIDGETHEADER/i)
+      end
+
+      it "success, handles trailing slash" do 
+        current = described_class.new
+        HTTParrot::Config.config[:template_root] = File.dirname(__FILE__) + "/templates/"
+        warning = Regexp.escape(current.__send__(:template_root_search))
+        current.to_s.should match(/WIDGETHEADER/i)
+      end
+
     end
 
   end
