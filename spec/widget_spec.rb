@@ -114,6 +114,24 @@ describe HTTParrot::Widget do
       subject.to_s
     end
 
+    it "renders the file when full path is present in template_file" do 
+      current = described_class.new
+      current.template_file = File.expand_path("./templates/awesometown_protocol.erb",
+                                               File.dirname(__FILE__))
+
+      current.to_s.should match(/AWESOMEHEADER/i)
+    end
+
+    it "prioritizes template_file over HTTParrot::Config.template_root" do 
+      current = described_class.new
+      current.template_file = File.expand_path("./templates/awesometown_protocol.erb",
+                                               File.dirname(__FILE__))
+
+      HTTParrot::Config.config[:template_root] = "/usr"
+
+      current.to_s.should match(/AWESOMEHEADER/i)
+    end
+
   end
 
 end

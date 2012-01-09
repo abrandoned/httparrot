@@ -45,7 +45,7 @@ module HTTParrot
       set_template_file
 
       if @table.has_key?(:template_file) && !self.template_file.nil?
-        file_string = File.read(file_template)
+        file_string = File.read(self.template_file)
         current_template = ERB.new(file_string, nil, "<>")
         return current_template.result(binding) 
       else
@@ -66,7 +66,7 @@ module HTTParrot
     end
 
     def set_template_file
-      self._class = self._class || self.class.to_s
+      self._class ||= self.class.to_s
 
       if self.template_file.nil? || self.template_file.empty?
         template_root = HTTParrot::Config.config[:template_root] || ".."
