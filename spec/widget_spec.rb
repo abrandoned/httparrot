@@ -99,20 +99,19 @@ describe HTTParrot::Widget do
   end
 
   context "#rack_response" do 
+    before(:each) { HTTParrot::Config.restore_defaults! }
 
-    it "warns if no template_file is defined" do 
-      subject.should_receive(:warn).with(/template_file/)
-      subject.rack_response
+    it "returns a valid rack response" do 
+      current = described_class.new
+      HTTParrot::Config.config[:template_root] = File.dirname(__FILE__) + "/templates" 
+      current.rack_response.should be_a(Array)
+      current.rack_response.size.should eq(3)
     end
 
   end
 
   context "#to_s" do
-
-    it "warns if no template_file is defined" do 
-      subject.should_receive(:warn).with(/template_file/)
-      subject.to_s
-    end
+    before(:each) { HTTParrot::Config.restore_defaults! }
 
     it "renders the file when full path is present in template_file" do 
       current = described_class.new
@@ -131,6 +130,7 @@ describe HTTParrot::Widget do
     end
 
     context "falls back to HTTParrot::Config[:template_root] when no template_file" do
+      before(:each) { HTTParrot::Config.restore_defaults! }
 
       it "warn" do
         current = described_class.new
@@ -138,20 +138,18 @@ describe HTTParrot::Widget do
         HTTParrot::Config.config[:template_root] = File.dirname(bad_dir) 
         warning = Regexp.escape(current.__send__(:template_root_search))
         current.should_receive(:warn).with(/#{warning}/)
-          current.to_s
+        current.to_s
       end
 
       it "success" do
         current = described_class.new
         HTTParrot::Config.config[:template_root] = File.dirname(__FILE__) + "/templates" 
-        warning = Regexp.escape(current.__send__(:template_root_search))
         current.to_s.should match(/WIDGETHEADER/i)
       end
 
       it "success, handles trailing slash" do 
         current = described_class.new
         HTTParrot::Config.config[:template_root] = File.dirname(__FILE__) + "/templates/"
-        warning = Regexp.escape(current.__send__(:template_root_search))
         current.to_s.should match(/WIDGETHEADER/i)
       end
 
