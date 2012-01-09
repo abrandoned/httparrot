@@ -59,6 +59,10 @@ describe HTTParrot::Server do
 
   end
 
+  context "response counting" do 
+
+  end
+
   context "#reset_counts" do 
 
     it "resets call_handlers counts" do 
