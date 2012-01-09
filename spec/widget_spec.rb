@@ -127,9 +127,23 @@ describe HTTParrot::Widget do
       current.template_file = File.expand_path("./templates/awesometown_protocol.erb",
                                                File.dirname(__FILE__))
 
-      HTTParrot::Config.config[:template_root] = "/usr"
-
       current.to_s.should match(/AWESOMEHEADER/i)
+    end
+
+    it "falls back to HTTParrot::Config[:template_root] when no template_file (warn)" do
+      current = described_class.new
+      bad_dir = File.expand_path("../lib/httparrot.rb", File.dirname(__FILE__))
+      HTTParrot::Config.config[:template_root] = File.dirname(bad_dir) 
+      warning = Regexp.escape(current.__send__(:template_root_search))
+      current.should_receive(:warn).with(/#{warning}/)
+      current.to_s
+    end
+
+    it "falls back to HTTParrot::Config[:template_root] when no template_file (warn)" do
+      current = described_class.new
+      HTTParrot::Config.config[:template_root] = File.dirname(__FILE__) + "/templates" 
+      warning = Regexp.escape(current.__send__(:template_root_search))
+      current.to_s.should match(/WIDGETHEADER/i)
     end
 
   end

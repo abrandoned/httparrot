@@ -65,14 +65,19 @@ module HTTParrot
       end
     end
 
-    def set_template_file
+    def template_root_search
       self._class ||= self.class.to_s
 
+      template_root = HTTParrot::Config.config[:template_root] || ".."
+      template_root = template_root[0..-1] if template_root[-1] == "/"
+      filename = self._class.gsub("Widget::", "")
+      filename.gsub!("HTTParrot::", "")
+      return "#{template_root}/**/#{filename.underscore}.erb"
+    end
+
+    def set_template_file
       if self.template_file.nil? || self.template_file.empty?
-        template_root = HTTParrot::Config.config[:template_root] || ".."
-        template_root = template_root[0..-1] if template_root[-1] == "/"
-        filename = "#{self._class.gsub("Widget::", "").underscore}.erb"
-        self.template_file = Dir.glob(template_root + "/**/" + filename).first
+        self.template_file = Dir.glob(template_root_search).first
       end
     end
 
@@ -86,6 +91,9 @@ module HTTParrot
               This will leave the response as an inspection of the class
               and is probably not the intended behavior.  Before returning
               a rack_response, define a template file to render with.
+
+              template_root search:
+              #{template_root_search}
 
               Called at:
 
