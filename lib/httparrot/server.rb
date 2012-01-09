@@ -1,6 +1,6 @@
 # Mock server to accept requests and return known responses based on request content 
 #
-# influenced by work at : http://dynamicorange.com/2009/02/18/ruby-mock-web-server
+# influenced by: http://dynamicorange.com/2009/02/18/ruby-mock-web-server
 require 'openssl'
 require 'ostruct'
 require 'net/http'
@@ -40,7 +40,8 @@ module HTTParrot
       }
 
       # Using Marshal for deep copy purposes
-      # slow from an efficiency perspective, but #clear! is not called frequently and this is for testing
+      # slow from an efficiency perspective, but #clear! 
+      # is not called frequently and this gem is for testing
       @call_handlers = Marshal.load(Marshal.dump(blank_handler)) 
       @regex_handlers = Marshal.load(Marshal.dump(blank_handler)) 
       @endpoint_handlers = Marshal.load(Marshal.dump(blank_handler)) 

@@ -3,6 +3,8 @@ require 'spec_helper'
 describe HTTParrot::Config do 
 
   context "defaults" do 
+    before(:each){ HTTParrot::Config.restore_defaults! }
+
     specify{ HTTParrot::Config.Port.should eq(4000) }
     specify{ HTTParrot::Config.SSLPort.should eq(4001) }
     specify{ HTTParrot::Config.ssl.should be_true }
