@@ -25,8 +25,15 @@ module HTTParrot
       @parent_thread = Thread.current
       @options = { 
         :Port => 4000, 
-        :Host => "127.0.0.1" 
+        :Host => "127.0.0.1"
       }.merge(HTTParrot::Config.config).merge(opts)
+
+      quiet_options = { 
+        :Logger => WEBrick::Log::new("/dev/null", 7),
+        :AccessLog => []
+      }
+
+      @options.merge!(quiet_options) unless HTTParrot::Config.verbose
 
       self.clear!
     end
