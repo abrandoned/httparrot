@@ -1,7 +1,7 @@
 # Mock server to accept requests and return known responses based on request content 
 #
 # influenced by: http://dynamicorange.com/2009/02/18/ruby-mock-web-server
-require 'openssl'
+require 'openssl' unless defined?(JRUBY_VERSION)
 require 'ostruct'
 require 'net/http'
 require 'net/https'
