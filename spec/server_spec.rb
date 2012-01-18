@@ -25,9 +25,9 @@ describe HTTParrot::Server do
 
   specify{ @server.running?.should be_true } 
   specify{ @server.started?.should be_true }
-  
+
   context "#initialize" do 
-    
+
     it "uses HTTParrot::Content defaults (by default)" do 
       current = described_class.new
       current.options.should include(HTTParrot::Config.config)
@@ -60,25 +60,84 @@ describe HTTParrot::Server do
   end
 
   context "response counting" do 
-
-  end
-
-  context "#reset_counts" do 
-
-    it "resets call_handlers counts" do 
-      pending
+    before(:each) do 
+      HTTParrot::ResponseFactory.clear!
+      HTTParrot::Config.config[:template_root] = File.dirname(__FILE__)
+      HTTParrot::ResponseFactory.define(:widget) { |r| r.widget_header = "SERVER" }
+      @widget = HTTParrot::ResponseFactory.build(:widget)
+      @server.clear!
     end
 
-    it "resets regex_handlers counts" do 
-      pending
+    context "call_handlers" do 
+      before(:each) do
+        @widget_handler = @server.register(:post, lambda{ |v| v =~ /widget/ }, @widget.to_rack)
+        http_request = Net::HTTP.new("127.0.0.1", HTTParrot::Config.Port)
+        http_request.post("/widget", "widget=widget")
+      end
+
+      it "counts calls" do
+        @widget_handler.response_count.should eq(1)
+      end
+
+      it "resets counts" do 
+        @server.reset_counts
+        @widget_handler.response_count.should eq(0)
+      end
+
     end
 
-    it "resets endpoint_handlers counts" do 
-      pending
+    context "regex_handlers" do
+      before(:each) do 
+        @widget_handler = @server.register(:post, /widget/, @widget.to_rack)
+        http_request = Net::HTTP.new("127.0.0.1", HTTParrot::Config.Port)
+        http_request.post("/widget", "widget=widget")
+      end
+
+      it "counts calls" do
+        @widget_handler.response_count.should eq(1)
+      end
+
+      it "resets counts" do 
+        @server.reset_counts
+        @widget_handler.response_count.should eq(0)
+      end
+
     end
 
-    it "resets complex_handlers counts" do
-      pending
+    context "endpoint_handlers" do 
+      before(:each) do
+        @widget_handler = @server.register(:post, "widget", @widget.to_rack)
+        http_request = Net::HTTP.new("127.0.0.1", HTTParrot::Config.Port)
+        http_request.post("/widget", "widget=widget")
+      end
+
+      it "counts calls" do
+        @widget_handler.response_count.should eq(1)
+      end
+
+      it "resets counts" do 
+        @server.reset_counts
+        @widget_handler.response_count.should eq(0)
+      end
+
+    end
+
+    context "complex_handlers" do 
+      before(:each) do 
+        @widget_handler = @server.register(:post, ["widget", /widget/], @widget.to_rack)
+        http_request = Net::HTTP.new("127.0.0.1", HTTParrot::Config.Port)
+        http_request.post("/widget", "widget=widget")
+      end
+
+      it "counts calls" do
+        @widget_handler.response_count.should eq(1)
+      end
+
+      it "resets counts" do 
+        @server.reset_counts
+        @widget_handler.response_count.should eq(0)
+      end
+
     end
 
   end
@@ -88,14 +147,14 @@ describe HTTParrot::Server do
       HTTParrot::ResponseFactory.clear!
       HTTParrot::Config.config[:template_root] = File.dirname(__FILE__)
       HTTParrot::ResponseFactory.define(:widget) { |r| r.widget_header = "SERVER" }
+      @widget = HTTParrot::ResponseFactory.build(:widget)
       @server.clear!
     end
 
     it "registers call_handlers" do 
       handlers = @server.instance_variable_get("@call_handlers")
       handlers.each_value {|v| v.should be_empty }
-      widget = HTTParrot::ResponseFactory.build(:widget)
-      @server.register(:get, lambda{ |v| v =~ /widget/ }, widget.to_rack)
+      @server.register(:get, lambda{ |v| v =~ /widget/ }, @widget.to_rack)
       handlers[:get].should_not be_empty
       handlers[:post].should be_empty
     end
@@ -103,8 +162,7 @@ describe HTTParrot::Server do
     it "registers regex_handlers" do 
       handlers = @server.instance_variable_get("@regex_handlers")
       handlers.each_value {|v| v.should be_empty }
-      widget = HTTParrot::ResponseFactory.build(:widget)
-      @server.register(:get, /widget/, widget.to_rack)
+      @server.register(:get, /widget/, @widget.to_rack)
       handlers[:get].should_not be_empty
       handlers[:post].should be_empty
     end
@@ -112,24 +170,21 @@ describe HTTParrot::Server do
     it "registers endpoint_handlers" do 
       handlers = @server.instance_variable_get("@endpoint_handlers")
       handlers.each_value {|v| v.should be_empty }
-      widget = HTTParrot::ResponseFactory.build(:widget)
-      @server.register(:get, "/widget", widget.to_rack)
-      handlers[:get].should_not be_empty
+      @server.register(:get, "/widget", @widget.to_rack)
+      handlers[:get].should_not be_empty 
       handlers[:post].should be_empty
     end
 
     it "registers complex_handlers" do 
       handlers = @server.instance_variable_get("@complex_handlers")
       handlers.each_value {|v| v.should be_empty }
-      widget = HTTParrot::ResponseFactory.build(:widget)
-      @server.register(:get, ["/widget", /widget/], widget.to_rack)
+      @server.register(:get, ["/widget", /widget/], @widget.to_rack)
       handlers[:get].should_not be_empty
       handlers[:post].should be_empty
     end
 
     it "raises error when handler type cannot be inferred" do 
-      widget = HTTParrot::ResponseFactory.build(:widget)
-      expect{ @server.register(:get, 1, widget.to_rack) }.to raise_error(/callable/)
+      expect{ @server.register(:get, 1, @widget.to_rack) }.to raise_error(/callable/)
     end
 
   end

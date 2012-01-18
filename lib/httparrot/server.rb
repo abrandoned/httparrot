@@ -62,7 +62,7 @@ module HTTParrot
       response = respond_with(env)
 
       # TODO move this to WEBrick's builtin logging facilities
-      if ENV["MOCK_VERBOSE"] || HTTParrot.verbose
+      if ENV["MOCK_VERBOSE"] || HTTParrot::Config.verbose
         puts "\n>>>>> REQUEST\n"
         puts req.body.string
 
@@ -167,7 +167,7 @@ module HTTParrot
     end
 
     def endpoint_handler_match?(endpoint_handler, env, request, request_method, request_body)
-      return request.path_info.gsub("/", "") =~ /#{endpoint_handler.method_key}/i
+      return request.path_info =~ /#{endpoint_handler.method_key}/i
     end
 
     def regex_handler_match?(regex_handler, env, request, request_method, request_body)
