@@ -69,12 +69,14 @@ module HTTParrot
       response = respond_with(env)
 
       # TODO move this to WEBrick's builtin logging facilities
-      if ENV["MOCK_VERBOSE"] || HTTParrot::Config.verbose
+      if ENV["PARROT_VERBOSE"] || HTTParrot::Config.verbose
         puts "\n>>>>> REQUEST\n"
-        puts req.body.string
+        puts req.inspect
+        #puts req.body.string
 
         puts "\n<<<<< RESPONSE\n"
-        response[2].each{ |l| puts l }
+        puts response.inspect
+        #response[2].each{ |l| puts l }
       end
 
       return response

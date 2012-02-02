@@ -10,7 +10,12 @@ module HTTParrot
 
     def initialize(defaults = {})
       @parent_overwrite = false 
+      @headers = {}
       super(defaults)
+    end
+
+    def header
+      @headers
     end
 
     def parent(parental_class, defaults={})
@@ -32,7 +37,7 @@ module HTTParrot
 
     def rack_response(response_code = 200)
       rendered_response = self.to_s
-      return [response_code, {"Content-Length" => rendered_response.size.to_s}, [rendered_response]]
+      return [response_code, @headers.merge({"Content-Length" => rendered_response.size.to_s}), [rendered_response]]
     end
     alias_method :to_rack, :rack_response
     alias_method :to_rack_response, :rack_response
@@ -45,9 +50,10 @@ module HTTParrot
       set_template_file
 
       if @table.has_key?(:template_file) && !self.template_file.nil?
+        @headers = {}
         file_string = File.read(self.template_file)
         current_template = ERB.new(file_string, nil, "<>")
-        return current_template.result(binding) 
+        return current_template.result(binding)
       else
         warn_no_template
         return self.inspect
