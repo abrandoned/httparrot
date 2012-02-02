@@ -1,1 +1,15 @@
+= HTTParrot
 
+Do you need to mock an API endpoint over an HTTP connection?  Does your API only speak HTTP?  Other things and stuff related to mock servers and HTTP?
+
+Then you need HTTParrot!
+
+= Install it
+    gem install httparrot  #=> OR include it in the development/test group of your Gemfile
+
+
+HTTParrot's goal is to simplify building mock HTTP responses and scripting the responses during an HTTP session interaction.  
+Responses are mocked in ERB and can be returned via matching params that are setup during use.  (We use HTTParrot to
+help mock our HTTP protocol support around the webs)
+
+== Example

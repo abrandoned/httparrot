@@ -121,7 +121,8 @@ describe HTTParrot::Widget do
       current.template_file = File.expand_path("./templates/awesometown_protocol.erb",
                                                File.dirname(__FILE__))
 
-      current.to_s.should match(/AWESOMEHEADER/i)
+      current.to_s
+      current.header.inspect.should match(/AWESOMEHEADER/i)
     end
 
     it "prioritizes template_file over HTTParrot::Config.template_root" do 
@@ -129,7 +130,8 @@ describe HTTParrot::Widget do
       current.template_file = File.expand_path("./templates/awesometown_protocol.erb",
                                                File.dirname(__FILE__))
 
-      current.to_s.should match(/AWESOMEHEADER/i)
+      current.to_s
+      current.header.inspect.should match(/AWESOMEHEADER/i)
     end
 
     context "rendering erb with current widget" do
