@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Brandon Dewitt"]
   s.email       = ["brandonsdewitt@gmail.com"]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.summary     = %q{Mock Server for testing HTTP anything!}
+  s.description = %q{helps cut through the clutter of HTTP testing}
 
   s.rubyforge_project = "httparrot"
 
