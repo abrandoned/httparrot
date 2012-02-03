@@ -59,7 +59,7 @@ describe HTTParrot::Server do
 
   end
 
-  context "response counting" do 
+  describe "counts and call handlers" do
     before(:each) do 
       HTTParrot::ResponseFactory.clear!
       HTTParrot::Config.config[:template_root] = File.dirname(__FILE__)

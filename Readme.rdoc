@@ -2,7 +2,7 @@
 
 Do you need to mock an API endpoint over an HTTP connection?  Does your API only speak HTTP?  Other things and stuff related to mock servers and HTTP?
 
-Then you need HTTParrot!
+Then you need HTTParrot! (or something else that does similar things maybe)
 
 = Install it
     gem install httparrot  #=> OR include it in the development/test group of your Gemfile
@@ -13,3 +13,85 @@ Responses are mocked in ERB and can be returned via matching params that are set
 help mock our HTTP protocol support around the webs)
 
 == Example
+TotallyNewAwesomeCompany has decided that too many protocols exist in the Widget space.  Unfortunately none of those protocols 
+account for how awesome the protocol could be if only TotallyNewAwesomeCompany had a way to force adoption.  TNAC has decided
+to implement an HTTP based protocol to exchange Widget data, but they NEED to write tests for the session based HTTP protocol
+(Request => Response => Request => Response)
+
+Protocol logic:
+A connection is established with an ConnectWidget document sent to tnac.com/connect_widget
+A valid connection response contains "TNAC: VERIFIED"
+Widget data is requested with a POST sent to tnac.com/widget AND must POST the widget id
+
+(we know this isn't very RESTful, but it's a contrived example)
+
+Using HTTParrot we can test said protocol in a "simple" way :)
+
+  describe TNAC::Widget do
+    
+    before(:all) do 
+      @server = HTTParrot::Server.new
+      @server.start
+    end
+
+    after(:all) do 
+      @server.stop
+    end
+
+    before(:each) do 
+      HTTParrot::ResponseFactory.clear!
+      HTTParrot::ResponseFactory.define(:connection) { |c| c.tnac = "VERIFIED" }
+      HTTParrot::ResponseFactory.define(:widget) { |w| w.awesomeness = "YEPYEP" }
+      @connection = HTTParrot::ResponseFactory.build(:connection)
+      @widget = HTTParrot::ResponseFactory.build(:widget)
+      @server.clear!
+    end
+
+    it "totally connects" do 
+      connection_reg = @server.register(:get, "connect_widget", @connection.to_rack)
+      http_connection = Net::HTTP.new("127.0.0.1", HTTParrot::Config.Port)
+      http_connection.get("/connect_widget")
+      connection_reg.response_count.should eq(1)
+    end
+
+    it "allows me to get a widget" do 
+      @server.register(:post, /WIDGET/, @widget.to_rack)
+      data = "widget=WIDGET&id=1224"
+      http_connection = Net::HTTP.new("127.0.0.1", HTTParrot::Config.Port)
+      http_connection.post("/widget", data).should match(/VERIFIED/) 
+    end
+
+  end
+
+
+= Matchers
+Matchers are used to register responses based on scripted requests
+
+== Regex Matcher
+Matches based on the body of a request matching the Regex passed
+
+  @server.register(:get, /Match This/, @response.to_rack)
+
+== Endpoint Matchers
+Matches based on the endpoint URI that the HTTP verb acts on
+  
+  @server.register(:get, "endpoint", @response.to_rack)
+
+== Callable Matcher
+Any parameter that responds to :call can be used to return true/false depending on the body being passed to the callable
+(primarily used with lambdas/procs/method object)
+
+  @server.register(:get, lambda{ |b| b =~ /awesome/ }, @response.to_rack)
+
+== Complex Matcher
+A complex matcher is an Array comprised of any number of the other Matchers
+
+  @server.register(:get, [/awesome/, lambda{|v| v =~ /awesome/], @response.to_rack)
+
+
+= Registering Responses
+A response is registered as a HTTP verb type [:get, :post, :head, :delete] followed by the MATCHER and finally a Rack Response 
+of the data that will be returned when a match is found.  The primary means of the Rack Response in our tests comes from using
+HTTParrot::ResponseFactory to build responses based on ERB templates.
+
+(Checkout the tests in the spec folder to build out the templates.....more documentation to come)
