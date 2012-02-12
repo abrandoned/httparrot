@@ -37,7 +37,8 @@ module HTTParrot
       return collection
     end
 
-    def self.one_of(choices)
+    def self.one_of(*choices)
+      choices = [choices].flatten
       warn_no_choices if choices.size <= 0
       choices[rand(choices.size)]
     end
