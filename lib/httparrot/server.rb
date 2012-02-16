@@ -28,8 +28,10 @@ module HTTParrot
         :Host => "127.0.0.1"
       }.merge(HTTParrot::Config.config).merge(opts)
 
+      # hard to believe, but it's true, some people still use Windows! like me.
+      isWindows = RUBY_PLATFORM.downcase =~ /mswin|windows|mingw/i
       quiet_options = { 
-        :Logger => WEBrick::Log::new("/dev/null", 7),
+        :Logger => WEBrick::Log::new(isWindows ? "nul" : "/dev/null", 7),
         :AccessLog => []
       }
 
