@@ -6,3 +6,7 @@ gemspec
 platforms :jruby do
   gem 'jruby-openssl'
 end
+
+platforms :mingw do
+  gem 'i18n'
+end

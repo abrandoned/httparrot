@@ -4,3 +4,4 @@ Gemfile.lock
 pkg/*
 .buildpath
 .project
+*.lnk
