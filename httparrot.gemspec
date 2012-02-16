@@ -5,8 +5,8 @@ require "httparrot/version"
 Gem::Specification.new do |s|
   s.name        = "httparrot"
   s.version     = HTTParrot::VERSION
-  s.authors     = ["Brandon Dewitt"]
-  s.email       = ["brandonsdewitt@gmail.com"]
+  s.authors     = ["Brandon Dewitt", "lawrence mcalpin"]
+  s.email       = ["brandonsdewitt+httparrot@gmail.com"]
   s.homepage    = ""
   s.summary     = %q{Mock Server for testing HTTP anything!}
   s.description = %q{helps cut through the clutter of HTTP testing}
