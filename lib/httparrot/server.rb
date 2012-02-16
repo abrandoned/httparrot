@@ -29,9 +29,9 @@ module HTTParrot
       }.merge(HTTParrot::Config.config).merge(opts)
 
       # hard to believe, but it's true, some people still use Windows! like me.
-      isWindows = RUBY_PLATFORM.downcase =~ /mswin|windows|mingw/i
+      is_windows = RUBY_PLATFORM =~ /mswin|windows|mingw/i
       quiet_options = { 
-        :Logger => WEBrick::Log::new(isWindows ? "nul" : "/dev/null", 7),
+        :Logger => WEBrick::Log::new(is_windows ? "nul" : "/dev/null", 7),
         :AccessLog => []
       }
 
@@ -88,15 +88,17 @@ module HTTParrot
       @parent_thread.raise e
     end
 
-    def register(http_method, method_key, response, call_with_env = false)
+    def register(http_method, method_key, response, opts={})
       http_method = http_method.to_s.downcase.to_sym
       raise "http_method in register must be one of [:get, :post, :head, :delete] : #{http_method}" if ![:get, :post, :head, :delete].include?(http_method)
 
+      call_with_env = opts[:call_with_env] || false
       response_handler = OpenStruct.new({
         :method_key => method_key,
         :response => response,
         :env? => call_with_env,
-        :response_count => 0
+        :response_count => 0, 
+        :options => opts
       })
 
       case
@@ -143,6 +145,9 @@ module HTTParrot
     # Increment the number of times a handler was used (for asserting usage)
     def increment_return(handler)
       handler.response_count = handler.response_count + 1
+      if handler.options then
+        sleep handler.options[:delay] if handler.options[:delay] 
+      end
       return handler.response
     end
 
