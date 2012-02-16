@@ -182,6 +182,15 @@ describe HTTParrot::Server do
       handlers[:get].should_not be_empty
       handlers[:post].should be_empty
     end
+    
+    it "can simulate slow connections" do
+      handler = @server.register(:get, ["/widget", /widget/], @widget.to_rack, :delay => 0.5)
+      
+      # stub sleep
+      @server.stub!(:sleep)
+      @server.should_receive(:sleep).with(0.5)
+      @server.send(:increment_return, handler)
+    end
 
     it "raises error when handler type cannot be inferred" do 
       expect{ @server.register(:get, 1, @widget.to_rack) }.to raise_error(/callable/)
